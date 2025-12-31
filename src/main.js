@@ -32,6 +32,9 @@ import { initializePhotoGallery } from './components/PhotoGallery.js';
 import { initializeLightbox } from './utils/lightbox.js';
 import { TESTIMONIALS } from './data/impactContent.js';
 
+// Import Programs section component
+import { renderProgramsSection } from './components/ProgramsSection.js';
+
 /**
  * Application initialization and configuration
  */
@@ -53,6 +56,7 @@ class Application {
     this.testimonialsCarousel = null;
     this.photoGallery = null;
     this.lightbox = null;
+    this.programsSection = null;
     
     // Bind methods to maintain context
     this.init = this.init.bind(this);
@@ -160,6 +164,15 @@ class Application {
         // Continue initialization even if About section fails
       }
 
+      // Initialize Programs section components
+      try {
+        this.initializeProgramsComponents();
+        this.logInfo('Programs section components initialized successfully');
+      } catch (programsError) {
+        this.logError('Failed to initialize Programs section components', programsError);
+        // Continue initialization even if Programs section fails
+      }
+
       // Initialize Impact section components
       try {
         this.initializeImpactComponents();
@@ -237,6 +250,38 @@ class Application {
       });
     } catch (error) {
       this.logError('Error initializing About components', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Initialize Programs section components
+   * Sets up Programs section with program cards and interactive elements
+   */
+  async initializeProgramsComponents() {
+    try {
+      const appContainer = document.getElementById('app');
+      if (!appContainer) {
+        throw new Error('App container not found');
+      }
+
+      // Render Programs section
+      try {
+        renderProgramsSection('app');
+        this.programsSection = true;
+        this.logInfo('Programs section rendered');
+
+        // Listen for program interaction events
+        document.addEventListener('program-interaction', (event) => {
+          this.logInfo('Program interaction detected', event.detail);
+        });
+      } catch (error) {
+        this.logError('Failed to render Programs section', error);
+        throw error;
+      }
+
+    } catch (error) {
+      this.logError('Error initializing Programs components', error);
       throw error;
     }
   }
@@ -529,6 +574,15 @@ class Application {
       if (this.impactSection && this.impactSection.parentNode) {
         this.impactSection.parentNode.removeChild(this.impactSection);
         this.impactSection = null;
+      }
+
+      // Clean up Programs section
+      if (this.programsSection) {
+        const programsElement = document.getElementById('programs');
+        if (programsElement && programsElement.parentNode) {
+          programsElement.parentNode.removeChild(programsElement);
+        }
+        this.programsSection = null;
       }
       
       this.initialized = false;

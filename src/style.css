@@ -638,6 +638,165 @@
     );
     pointer-events: none;
   }
+  
+  /* Programs section styles */
+  #programs {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  /* Program card styles */
+  .program-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    transition: all var(--transition-base) ease;
+    will-change: transform, box-shadow;
+  }
+  
+  .program-card:hover {
+    transform: translateY(-8px);
+    box-shadow: theme('boxShadow.medium');
+  }
+  
+  .program-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 2px;
+    background: linear-gradient(135deg, currentColor, transparent);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity var(--transition-base) ease;
+  }
+  
+  .program-card:hover::before {
+    opacity: 0.3;
+  }
+  
+  /* Program icon container */
+  .program-card .program-icon {
+    transition: transform var(--transition-base) ease;
+  }
+  
+  .program-card:hover .program-icon {
+    transform: scale(1.1) rotate(5deg);
+  }
+  
+  /* Program initiatives list */
+  .program-card ul {
+    list-style: none;
+  }
+  
+  .program-card li {
+    position: relative;
+    padding-left: 0;
+  }
+  
+  .program-card li svg {
+    flex-shrink: 0;
+  }
+  
+  /* Program CTA link */
+  .program-card a[href="#get-involved"] {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .program-card a[href="#get-involved"]::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: currentColor;
+    transition: width var(--transition-base) ease;
+  }
+  
+  .program-card a[href="#get-involved"]:hover::after {
+    width: 100%;
+  }
+  
+  .program-card a[href="#get-involved"] svg {
+    transition: transform var(--transition-base) ease;
+  }
+  
+  .program-card a[href="#get-involved"]:hover svg {
+    transform: translateX(4px);
+  }
+  
+  /* Programs section header */
+  #programs header {
+    position: relative;
+    z-index: 1;
+  }
+  
+  /* Programs grid layout */
+  #programs .grid {
+    position: relative;
+    z-index: 1;
+  }
+  
+  /* Programs CTA footer */
+  #programs footer {
+    position: relative;
+    z-index: 1;
+  }
+  
+  #programs footer .bg-gradient-to-r {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  #programs footer .bg-gradient-to-r::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      circle at 30% 50%,
+      rgba(255, 255, 255, 0.1) 0%,
+      transparent 50%
+    );
+    pointer-events: none;
+  }
+  
+  /* Programs section background decoration */
+  #programs::before {
+    content: '';
+    position: absolute;
+    top: 10%;
+    right: -10%;
+    width: 40%;
+    height: 40%;
+    background: radial-gradient(
+      circle,
+      rgba(2, 132, 199, 0.05) 0%,
+      transparent 70%
+    );
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  
+  #programs::after {
+    content: '';
+    position: absolute;
+    bottom: 10%;
+    left: -10%;
+    width: 40%;
+    height: 40%;
+    background: radial-gradient(
+      circle,
+      rgba(192, 38, 211, 0.05) 0%,
+      transparent 70%
+    );
+    border-radius: 50%;
+    pointer-events: none;
+  }
 }
 
 /* Custom Utility Classes */

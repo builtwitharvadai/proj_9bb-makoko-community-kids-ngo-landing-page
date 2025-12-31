@@ -24,6 +24,14 @@ import { initializeAboutSection } from './components/AboutSection.js';
 import { initTeamSection } from './components/TeamSection.js';
 import { initValuesSection } from './components/ValuesSection.js';
 
+// Import Impact section components
+import { createImpactSection, initializeImpactSection } from './components/ImpactSection.js';
+import { initializeCounters } from './components/StatisticsCounter.js';
+import { TestimonialsCarousel } from './components/TestimonialsCarousel.js';
+import { initializePhotoGallery } from './components/PhotoGallery.js';
+import { initializeLightbox } from './utils/lightbox.js';
+import { TESTIMONIALS } from './data/impactContent.js';
+
 /**
  * Application initialization and configuration
  */
@@ -40,6 +48,11 @@ class Application {
     this.aboutSection = null;
     this.teamSection = null;
     this.valuesSection = null;
+    this.impactSection = null;
+    this.statisticsCounters = [];
+    this.testimonialsCarousel = null;
+    this.photoGallery = null;
+    this.lightbox = null;
     
     // Bind methods to maintain context
     this.init = this.init.bind(this);
@@ -147,6 +160,15 @@ class Application {
         // Continue initialization even if About section fails
       }
 
+      // Initialize Impact section components
+      try {
+        this.initializeImpactComponents();
+        this.logInfo('Impact section components initialized successfully');
+      } catch (impactError) {
+        this.logError('Failed to initialize Impact section components', impactError);
+        // Continue initialization even if Impact section fails
+      }
+
       // Initialize footer component
       const footerContainer = document.querySelector('[data-footer]');
       if (footerContainer) {
@@ -215,6 +237,117 @@ class Application {
       });
     } catch (error) {
       this.logError('Error initializing About components', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Initialize Impact section components
+   * Sets up Impact section, statistics counters, testimonials carousel, photo gallery, and lightbox
+   */
+  async initializeImpactComponents() {
+    try {
+      const appContainer = document.getElementById('app');
+      if (!appContainer) {
+        throw new Error('App container not found');
+      }
+
+      // Create and append Impact section
+      try {
+        const impactSection = createImpactSection();
+        appContainer.appendChild(impactSection);
+        this.impactSection = impactSection;
+        this.logInfo('Impact section created and appended');
+      } catch (error) {
+        this.logError('Failed to create Impact section', error);
+        throw error;
+      }
+
+      // Initialize statistics counters with Intersection Observer
+      try {
+        initializeImpactSection();
+        this.logInfo('Impact section counters initialized');
+      } catch (error) {
+        this.logError('Failed to initialize impact counters', error);
+      }
+
+      // Initialize advanced statistics counters
+      try {
+        this.statisticsCounters = initializeCounters('[data-counter-container]', {
+          duration: 2000,
+          easing: 'easeOutCubic',
+          threshold: 0.3,
+        });
+        this.logInfo('Advanced statistics counters initialized', {
+          count: this.statisticsCounters.length,
+        });
+      } catch (error) {
+        this.logError('Failed to initialize advanced counters', error);
+      }
+
+      // Initialize testimonials carousel
+      try {
+        const carouselContainer = document.createElement('div');
+        carouselContainer.id = 'testimonials-carousel-container';
+        carouselContainer.className = 'section-container';
+        
+        const carouselSection = document.createElement('section');
+        carouselSection.className = 'max-w-7xl mx-auto';
+        
+        const carouselTitle = document.createElement('h2');
+        carouselTitle.className = 'text-4xl md:text-5xl font-bold text-gray-900 text-center mb-12';
+        carouselTitle.textContent = 'Voices from Our Community';
+        
+        carouselSection.appendChild(carouselTitle);
+        carouselContainer.appendChild(carouselSection);
+        appContainer.appendChild(carouselContainer);
+
+        this.testimonialsCarousel = new TestimonialsCarousel({
+          containerId: 'testimonials-carousel-container',
+          testimonials: TESTIMONIALS,
+          autoPlayInterval: 6000,
+          autoPlay: true,
+          loop: true,
+        });
+        
+        this.logInfo('Testimonials carousel initialized', {
+          testimonialCount: TESTIMONIALS.length,
+        });
+      } catch (error) {
+        this.logError('Failed to initialize testimonials carousel', error);
+      }
+
+      // Initialize photo gallery with lightbox
+      try {
+        const gallery = await initializePhotoGallery();
+        appContainer.appendChild(gallery);
+        this.photoGallery = gallery;
+        this.logInfo('Photo gallery initialized');
+
+        // Initialize lightbox for gallery
+        this.lightbox = initializeLightbox({
+          gallerySelector: '#photo-gallery',
+          imageSelector: 'img[data-lightbox-image]',
+          enableZoom: true,
+          enableKeyboard: true,
+          enableTouch: true,
+        });
+        this.logInfo('Lightbox initialized for photo gallery');
+      } catch (error) {
+        this.logError('Failed to initialize photo gallery or lightbox', error);
+      }
+
+      // Listen for Impact section events
+      window.addEventListener('impact:rendered', (event) => {
+        this.logInfo('Impact section rendered', event.detail);
+      });
+
+      window.addEventListener('carousel:change', (event) => {
+        this.logInfo('Carousel slide changed', event.detail);
+      });
+
+    } catch (error) {
+      this.logError('Error initializing Impact components', error);
       throw error;
     }
   }
@@ -371,6 +504,31 @@ class Application {
       // Clean up header
       if (header && header.destroy) {
         header.destroy();
+      }
+
+      // Clean up Impact section components
+      if (this.statisticsCounters && this.statisticsCounters.length > 0) {
+        this.statisticsCounters.forEach(counter => {
+          if (counter && counter.destroy) {
+            counter.destroy();
+          }
+        });
+        this.statisticsCounters = [];
+      }
+
+      if (this.testimonialsCarousel && this.testimonialsCarousel.destroy) {
+        this.testimonialsCarousel.destroy();
+        this.testimonialsCarousel = null;
+      }
+
+      if (this.lightbox && this.lightbox.destroy) {
+        this.lightbox.destroy();
+        this.lightbox = null;
+      }
+
+      if (this.impactSection && this.impactSection.parentNode) {
+        this.impactSection.parentNode.removeChild(this.impactSection);
+        this.impactSection = null;
       }
       
       this.initialized = false;

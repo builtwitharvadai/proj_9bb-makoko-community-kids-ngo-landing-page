@@ -16,6 +16,9 @@ import header from './components/Header.js';
 import Footer from './components/Footer.js';
 import { initializeNavigation } from './utils/navigation.js';
 
+// Import hero section component
+import { initializeHeroSection } from './components/HeroSection.js';
+
 /**
  * Application initialization and configuration
  */
@@ -28,6 +31,7 @@ class Application {
     this.startTime = performance.now();
     this.navigationAPI = null;
     this.footer = null;
+    this.heroSection = null;
     
     // Bind methods to maintain context
     this.init = this.init.bind(this);
@@ -110,6 +114,20 @@ class Application {
       // Just verify it's ready
       if (header && header.init) {
         this.logInfo('Header component ready');
+      }
+
+      // Initialize hero section component
+      try {
+        this.heroSection = initializeHeroSection();
+        this.logInfo('Hero section initialized successfully');
+        
+        // Listen for hero section events
+        window.addEventListener('hero:rendered', (event) => {
+          this.logInfo('Hero section rendered', event.detail);
+        });
+      } catch (heroError) {
+        this.logError('Failed to initialize hero section', heroError);
+        // Continue initialization even if hero section fails
       }
 
       // Initialize footer component
@@ -269,6 +287,11 @@ class Application {
       // Clean up navigation API
       if (this.navigationAPI && this.navigationAPI.cleanup) {
         this.navigationAPI.cleanup();
+      }
+
+      // Clean up hero section
+      if (this.heroSection && this.heroSection.destroy) {
+        this.heroSection.destroy();
       }
 
       // Clean up footer

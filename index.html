@@ -43,6 +43,35 @@
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "NGO",
+      "name": "Makoko Community Kids NGO",
+      "url": "https://makokokids.org",
+      "logo": "https://makokokids.org/images/logo.png",
+      "description": "Empowering children in the Makoko community through education, healthcare, and community development programs",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Makoko",
+        "addressRegion": "Lagos",
+        "addressCountry": "Nigeria"
+      },
+      "sameAs": [
+        "https://facebook.com/makokokids",
+        "https://twitter.com/makokokids",
+        "https://instagram.com/makokokids"
+      ],
+      "potentialAction": {
+        "@type": "DonateAction",
+        "recipient": {
+          "@type": "NGO",
+          "name": "Makoko Community Kids NGO"
+        }
+      }
+    }
+    </script>
+    
     <script type="module" src="/src/main.js"></script>
   </head>
   <body>
@@ -176,25 +205,8 @@
       <!-- Programs Section Container -->
       <div id="programs-section-container"></div>
 
-      <!-- Donate Section -->
-      <section id="donate" data-section class="bg-gradient-to-br from-primary-600 to-secondary-600 text-white section-container" aria-labelledby="donate-title">
-        <div class="max-w-4xl mx-auto text-center">
-          <h2 id="donate-title" class="text-3xl md:text-4xl font-bold mb-6">
-            Make a Difference Today
-          </h2>
-          <p class="text-xl mb-8">
-            Your donation helps us provide education, healthcare, and hope to children in Makoko
-          </p>
-          <div class="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="#donate" class="btn btn-secondary shadow-lg">
-              Donate Now
-            </a>
-            <a href="#volunteer" class="btn btn-outline border-white text-white hover:bg-white hover:text-primary-600">
-              Become a Volunteer
-            </a>
-          </div>
-        </div>
-      </section>
+      <!-- Donate Section Container -->
+      <div id="donate-section-container"></div>
 
       <!-- Volunteer Section -->
       <section id="volunteer" data-section class="section-container" aria-labelledby="volunteer-title">

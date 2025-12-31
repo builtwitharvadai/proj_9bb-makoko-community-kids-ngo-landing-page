@@ -19,6 +19,11 @@ import { initializeNavigation } from './utils/navigation.js';
 // Import hero section component
 import { initializeHeroSection } from './components/HeroSection.js';
 
+// Import About section components
+import { initializeAboutSection } from './components/AboutSection.js';
+import { initTeamSection } from './components/TeamSection.js';
+import { initValuesSection } from './components/ValuesSection.js';
+
 /**
  * Application initialization and configuration
  */
@@ -32,6 +37,9 @@ class Application {
     this.navigationAPI = null;
     this.footer = null;
     this.heroSection = null;
+    this.aboutSection = null;
+    this.teamSection = null;
+    this.valuesSection = null;
     
     // Bind methods to maintain context
     this.init = this.init.bind(this);
@@ -130,6 +138,15 @@ class Application {
         // Continue initialization even if hero section fails
       }
 
+      // Initialize About section components
+      try {
+        this.initializeAboutComponents();
+        this.logInfo('About section components initialized successfully');
+      } catch (aboutError) {
+        this.logError('Failed to initialize About section components', aboutError);
+        // Continue initialization even if About section fails
+      }
+
       // Initialize footer component
       const footerContainer = document.querySelector('[data-footer]');
       if (footerContainer) {
@@ -146,6 +163,58 @@ class Application {
       this.setupNavigationListeners();
     } catch (error) {
       this.logError('Failed to initialize components', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Initialize About section components
+   * Sets up About section, Team section, and Values section
+   */
+  async initializeAboutComponents() {
+    try {
+      // Initialize main About section
+      try {
+        await initializeAboutSection('app');
+        this.aboutSection = true;
+        this.logInfo('About section initialized');
+      } catch (error) {
+        this.logError('Failed to initialize About section', error);
+      }
+
+      // Initialize Team section
+      try {
+        const appContainer = document.getElementById('app');
+        if (appContainer) {
+          await initTeamSection(appContainer);
+          this.teamSection = true;
+          this.logInfo('Team section initialized');
+        }
+      } catch (error) {
+        this.logError('Failed to initialize Team section', error);
+      }
+
+      // Initialize Values section
+      try {
+        const appContainer = document.getElementById('app');
+        if (appContainer) {
+          const valuesContainer = document.createElement('div');
+          valuesContainer.id = 'values-section-container';
+          appContainer.appendChild(valuesContainer);
+          
+          this.valuesSection = initValuesSection('values-section-container');
+          this.logInfo('Values section initialized');
+        }
+      } catch (error) {
+        this.logError('Failed to initialize Values section', error);
+      }
+
+      // Listen for About section events
+      window.addEventListener('about:rendered', (event) => {
+        this.logInfo('About section rendered', event.detail);
+      });
+    } catch (error) {
+      this.logError('Error initializing About components', error);
       throw error;
     }
   }

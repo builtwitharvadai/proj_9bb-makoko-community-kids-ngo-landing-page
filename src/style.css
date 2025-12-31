@@ -429,6 +429,43 @@
   .mobile-nav-link:active {
     transform: scale(0.98);
   }
+  
+  /* Team member card styles */
+  .team-member-card {
+    position: relative;
+    background: white;
+    border-radius: theme('borderRadius.2xl');
+    overflow: hidden;
+    box-shadow: theme('boxShadow.soft');
+    transition: all var(--transition-base) ease;
+  }
+  
+  .team-member-card:hover {
+    box-shadow: theme('boxShadow.medium');
+    transform: translateY(-8px);
+  }
+  
+  .team-member-card .line-clamp-4 {
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  /* About section specific styles */
+  #about-section .animate-fadeInUp {
+    animation: fadeInUp 0.6s ease-out forwards;
+  }
+  
+  #about-section .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+  
+  /* Approach step styles */
+  .approach-step {
+    opacity: 0;
+    animation: fadeInUp 0.6s ease-out forwards;
+  }
 }
 
 /* Custom Utility Classes */

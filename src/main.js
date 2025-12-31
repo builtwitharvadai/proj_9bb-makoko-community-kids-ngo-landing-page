@@ -35,6 +35,9 @@ import { TESTIMONIALS } from './data/impactContent.js';
 // Import Programs section component
 import { renderProgramsSection } from './components/ProgramsSection.js';
 
+// Import Donation section components
+import { createDonateSection } from './components/DonateSection.js';
+
 /**
  * Application initialization and configuration
  */
@@ -57,6 +60,7 @@ class Application {
     this.photoGallery = null;
     this.lightbox = null;
     this.programsSection = null;
+    this.donateSection = null;
     
     // Bind methods to maintain context
     this.init = this.init.bind(this);
@@ -180,6 +184,15 @@ class Application {
       } catch (impactError) {
         this.logError('Failed to initialize Impact section components', impactError);
         // Continue initialization even if Impact section fails
+      }
+
+      // Initialize Donation section components
+      try {
+        this.initializeDonationComponents();
+        this.logInfo('Donation section components initialized successfully');
+      } catch (donationError) {
+        this.logError('Failed to initialize Donation section components', donationError);
+        // Continue initialization even if Donation section fails
       }
 
       // Initialize footer component
@@ -398,6 +411,51 @@ class Application {
   }
 
   /**
+   * Initialize Donation section components
+   * Sets up donation forms with Stripe and PayPal payment integrations
+   */
+  async initializeDonationComponents() {
+    try {
+      const appContainer = document.getElementById('app');
+      if (!appContainer) {
+        throw new Error('App container not found');
+      }
+
+      // Create and append Donation section
+      try {
+        const donateSection = createDonateSection();
+        appContainer.appendChild(donateSection);
+        this.donateSection = donateSection;
+        this.logInfo('Donation section created and appended');
+
+        // Listen for donation events
+        window.addEventListener('donation:submitted', (event) => {
+          this.logInfo('Donation submitted', event.detail);
+        });
+
+        window.addEventListener('donation:success', (event) => {
+          this.logInfo('Donation successful', event.detail);
+        });
+
+        window.addEventListener('donation:error', (event) => {
+          this.logError('Donation error', event.detail);
+        });
+
+        window.addEventListener('donation:cancelled', (event) => {
+          this.logInfo('Donation cancelled', event.detail);
+        });
+      } catch (error) {
+        this.logError('Failed to create Donation section', error);
+        throw error;
+      }
+
+    } catch (error) {
+      this.logError('Error initializing Donation components', error);
+      throw error;
+    }
+  }
+
+  /**
    * Set up event listeners for navigation functionality
    */
   setupNavigationListeners() {
@@ -583,6 +641,12 @@ class Application {
           programsElement.parentNode.removeChild(programsElement);
         }
         this.programsSection = null;
+      }
+
+      // Clean up Donation section
+      if (this.donateSection && this.donateSection.parentNode) {
+        this.donateSection.parentNode.removeChild(this.donateSection);
+        this.donateSection = null;
       }
       
       this.initialized = false;

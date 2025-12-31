@@ -44,6 +44,12 @@ import { initializeContactForm } from './components/ContactForm.js';
 import createContactMap from './components/ContactMap.js';
 import { initializeSocialMedia } from './components/SocialMedia.js';
 
+// Import SEO and Analytics utilities
+import { initializeSEO } from './utils/seo.js';
+import { initializeAnalytics, trackPageView, trackEvent } from './utils/analytics.js';
+import { initializePrivacy, getConsent, onPrivacyEvent } from './utils/privacy.js';
+import { HOME_SEO } from './data/seoContent.js';
+
 /**
  * Application initialization and configuration
  */
@@ -71,12 +77,17 @@ class Application {
     this.contactForm = null;
     this.contactMap = null;
     this.socialMedia = null;
+    this.privacyInitialized = false;
+    this.analyticsInitialized = false;
+    this.seoInitialized = false;
     
     // Bind methods to maintain context
     this.init = this.init.bind(this);
     this.handleDOMContentLoaded = this.handleDOMContentLoaded.bind(this);
     this.handleError = this.handleError.bind(this);
     this.initializeComponents = this.initializeComponents.bind(this);
+    this.initializeSEOAndAnalytics = this.initializeSEOAndAnalytics.bind(this);
+    this.setupAnalyticsTracking = this.setupAnalyticsTracking.bind(this);
   }
 
   /**
@@ -119,6 +130,9 @@ class Application {
         appRoot.setAttribute('data-app-initialized', 'true');
       }
 
+      // Initialize SEO and Analytics first
+      this.initializeSEOAndAnalytics();
+
       // Initialize navigation components and functionality
       this.initializeComponents();
 
@@ -140,6 +154,183 @@ class Application {
       }
     } catch (error) {
       this.logError('Error during DOM content loaded handler', error);
+    }
+  }
+
+  /**
+   * Initialize SEO and Analytics functionality
+   * Sets up privacy management, SEO meta tags, and analytics tracking
+   */
+  async initializeSEOAndAnalytics() {
+    try {
+      // Initialize privacy manager first
+      try {
+        this.privacyInitialized = initializePrivacy();
+        this.logInfo('Privacy manager initialized');
+
+        // Listen for consent changes
+        onPrivacyEvent('privacy:consent-updated', (event) => {
+          this.logInfo('Privacy consent updated', event.detail);
+          this.handleConsentChange(event.detail.consent);
+        });
+      } catch (privacyError) {
+        this.logError('Failed to initialize privacy manager', privacyError);
+      }
+
+      // Initialize SEO meta tags and structured data
+      try {
+        initializeSEO({
+          title: HOME_SEO.title,
+          description: HOME_SEO.description,
+          keywords: HOME_SEO.keywords,
+          image: HOME_SEO.image,
+          url: window.location.href,
+          type: HOME_SEO.type,
+          structuredData: HOME_SEO.structuredData,
+        });
+        this.seoInitialized = true;
+        this.logInfo('SEO initialized successfully');
+      } catch (seoError) {
+        this.logError('Failed to initialize SEO', seoError);
+      }
+
+      // Initialize analytics based on consent
+      try {
+        const consent = getConsent();
+        
+        // Only initialize analytics if user has given consent
+        if (consent.analytics || consent.marketing) {
+          await initializeAnalytics({
+            ga4MeasurementId: import.meta.env.VITE_GA4_MEASUREMENT_ID || null,
+            fbPixelId: import.meta.env.VITE_FB_PIXEL_ID || null,
+            linkedInPartnerId: import.meta.env.VITE_LINKEDIN_PARTNER_ID || null,
+            debug: import.meta.env.MODE !== 'production',
+            consent: {
+              analytics: consent.analytics,
+              marketing: consent.marketing,
+              preferences: consent.preferences,
+            },
+          });
+          
+          this.analyticsInitialized = true;
+          this.logInfo('Analytics initialized successfully');
+
+          // Track initial page view
+          trackPageView({
+            page_title: document.title,
+            page_location: window.location.href,
+            page_path: window.location.pathname,
+          });
+
+          // Set up analytics event tracking
+          this.setupAnalyticsTracking();
+        } else {
+          this.logInfo('Analytics not initialized - user consent required');
+        }
+      } catch (analyticsError) {
+        this.logError('Failed to initialize analytics', analyticsError);
+      }
+
+    } catch (error) {
+      this.logError('Error initializing SEO and Analytics', error);
+    }
+  }
+
+  /**
+   * Set up analytics event tracking for user interactions
+   */
+  setupAnalyticsTracking() {
+    try {
+      // Track navigation clicks
+      document.addEventListener('click', (event) => {
+        const link = event.target.closest('a');
+        if (link) {
+          trackEvent('navigation_click', {
+            link_text: link.textContent.trim(),
+            link_url: link.href,
+            link_id: link.id || 'unknown',
+          });
+        }
+      });
+
+      // Track button clicks
+      document.addEventListener('click', (event) => {
+        const button = event.target.closest('button');
+        if (button) {
+          trackEvent('button_click', {
+            button_text: button.textContent.trim(),
+            button_id: button.id || 'unknown',
+            button_type: button.type || 'button',
+          });
+        }
+      });
+
+      // Track form interactions
+      document.addEventListener('submit', (event) => {
+        const form = event.target.closest('form');
+        if (form) {
+          trackEvent('form_submit', {
+            form_id: form.id || 'unknown',
+            form_name: form.name || 'unknown',
+          });
+        }
+      });
+
+      // Track scroll depth
+      let maxScrollDepth = 0;
+      const trackScrollDepth = () => {
+        const scrollPercentage = Math.round(
+          (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100
+        );
+        
+        if (scrollPercentage > maxScrollDepth && scrollPercentage % 25 === 0) {
+          maxScrollDepth = scrollPercentage;
+          trackEvent('scroll_depth', {
+            depth_percentage: scrollPercentage,
+          });
+        }
+      };
+
+      window.addEventListener('scroll', () => {
+        if (this.scrollTimeout) {
+          clearTimeout(this.scrollTimeout);
+        }
+        this.scrollTimeout = setTimeout(trackScrollDepth, 500);
+      });
+
+      this.logInfo('Analytics event tracking configured');
+    } catch (error) {
+      this.logError('Failed to set up analytics tracking', error);
+    }
+  }
+
+  /**
+   * Handle consent changes and update analytics accordingly
+   * 
+   * @param {Object} consent - Updated consent state
+   */
+  async handleConsentChange(consent) {
+    try {
+      if ((consent.analytics || consent.marketing) && !this.analyticsInitialized) {
+        // User granted consent, initialize analytics
+        await initializeAnalytics({
+          ga4MeasurementId: import.meta.env.VITE_GA4_MEASUREMENT_ID || null,
+          fbPixelId: import.meta.env.VITE_FB_PIXEL_ID || null,
+          linkedInPartnerId: import.meta.env.VITE_LINKEDIN_PARTNER_ID || null,
+          debug: import.meta.env.MODE !== 'production',
+          consent: {
+            analytics: consent.analytics,
+            marketing: consent.marketing,
+            preferences: consent.preferences,
+          },
+        });
+        
+        this.analyticsInitialized = true;
+        this.setupAnalyticsTracking();
+        this.logInfo('Analytics initialized after consent granted');
+      }
+    } catch (error) {
+      this.logError('Failed to handle consent change', error);
     }
   }
 
@@ -776,7 +967,16 @@ class Application {
 
       this.socialMedia = null;
       
+      // Clean up scroll timeout
+      if (this.scrollTimeout) {
+        clearTimeout(this.scrollTimeout);
+        this.scrollTimeout = null;
+      }
+      
       this.initialized = false;
+      this.privacyInitialized = false;
+      this.analyticsInitialized = false;
+      this.seoInitialized = false;
       this.logInfo('Application destroyed');
     } catch (error) {
       this.logError('Error during application cleanup', error);

@@ -38,6 +38,12 @@ import { renderProgramsSection } from './components/ProgramsSection.js';
 // Import Donation section components
 import { createDonateSection } from './components/DonateSection.js';
 
+// Import Contact section components
+import { ContactSection } from './components/ContactSection.js';
+import { initializeContactForm } from './components/ContactForm.js';
+import createContactMap from './components/ContactMap.js';
+import { initializeSocialMedia } from './components/SocialMedia.js';
+
 /**
  * Application initialization and configuration
  */
@@ -61,6 +67,10 @@ class Application {
     this.lightbox = null;
     this.programsSection = null;
     this.donateSection = null;
+    this.contactSection = null;
+    this.contactForm = null;
+    this.contactMap = null;
+    this.socialMedia = null;
     
     // Bind methods to maintain context
     this.init = this.init.bind(this);
@@ -193,6 +203,15 @@ class Application {
       } catch (donationError) {
         this.logError('Failed to initialize Donation section components', donationError);
         // Continue initialization even if Donation section fails
+      }
+
+      // Initialize Contact section components
+      try {
+        this.initializeContactComponents();
+        this.logInfo('Contact section components initialized successfully');
+      } catch (contactError) {
+        this.logError('Failed to initialize Contact section components', contactError);
+        // Continue initialization even if Contact section fails
       }
 
       // Initialize footer component
@@ -456,6 +475,93 @@ class Application {
   }
 
   /**
+   * Initialize Contact section components
+   * Sets up contact section with form, map, and social media integrations
+   */
+  async initializeContactComponents() {
+    try {
+      const appContainer = document.getElementById('app');
+      if (!appContainer) {
+        throw new Error('App container not found');
+      }
+
+      // Create and append Contact section
+      try {
+        const contactSectionHTML = ContactSection();
+        const contactContainer = document.createElement('div');
+        contactContainer.innerHTML = contactSectionHTML;
+        appContainer.appendChild(contactContainer.firstElementChild);
+        this.contactSection = true;
+        this.logInfo('Contact section created and appended');
+
+        // Initialize contact form with validation
+        try {
+          const formCleanup = initializeContactForm('#contact-form');
+          this.contactForm = { cleanup: formCleanup };
+          this.logInfo('Contact form initialized with validation');
+
+          // Listen for contact form events
+          document.addEventListener('contact:form-submitted', (event) => {
+            this.logInfo('Contact form submitted successfully', event.detail);
+          });
+
+          document.addEventListener('contact:form-error', (event) => {
+            this.logError('Contact form submission error', event.detail);
+          });
+        } catch (formError) {
+          this.logError('Failed to initialize contact form', formError);
+        }
+
+        // Initialize Google Maps integration
+        try {
+          const mapContainer = document.querySelector('#contact .aspect-w-16');
+          if (mapContainer) {
+            const map = createContactMap();
+            mapContainer.innerHTML = '';
+            mapContainer.appendChild(map);
+            this.contactMap = map;
+            this.logInfo('Contact map initialized');
+
+            // Listen for map events
+            window.addEventListener('map:ready', (event) => {
+              this.logInfo('Map loaded successfully', event.detail);
+            });
+          }
+        } catch (mapError) {
+          this.logError('Failed to initialize contact map', mapError);
+          // Map failure is non-critical, continue with fallback
+        }
+
+        // Initialize social media integration
+        try {
+          const socialContainer = document.querySelector('#contact .grid.grid-cols-2.sm\\:grid-cols-4');
+          if (socialContainer && socialContainer.parentElement) {
+            const socialWrapper = socialContainer.parentElement;
+            initializeSocialMedia(socialWrapper);
+            this.socialMedia = true;
+            this.logInfo('Social media integration initialized');
+          }
+        } catch (socialError) {
+          this.logError('Failed to initialize social media integration', socialError);
+        }
+
+        // Listen for Contact section events
+        window.addEventListener('contact:rendered', (event) => {
+          this.logInfo('Contact section rendered', event.detail);
+        });
+
+      } catch (error) {
+        this.logError('Failed to create Contact section', error);
+        throw error;
+      }
+
+    } catch (error) {
+      this.logError('Error initializing Contact components', error);
+      throw error;
+    }
+  }
+
+  /**
    * Set up event listeners for navigation functionality
    */
   setupNavigationListeners() {
@@ -648,6 +754,27 @@ class Application {
         this.donateSection.parentNode.removeChild(this.donateSection);
         this.donateSection = null;
       }
+
+      // Clean up Contact section components
+      if (this.contactForm && this.contactForm.cleanup) {
+        this.contactForm.cleanup();
+        this.contactForm = null;
+      }
+
+      if (this.contactMap && this.contactMap.parentNode) {
+        this.contactMap.parentNode.removeChild(this.contactMap);
+        this.contactMap = null;
+      }
+
+      if (this.contactSection) {
+        const contactElement = document.getElementById('contact');
+        if (contactElement && contactElement.parentNode) {
+          contactElement.parentNode.removeChild(contactElement);
+        }
+        this.contactSection = null;
+      }
+
+      this.socialMedia = null;
       
       this.initialized = false;
       this.logInfo('Application destroyed');

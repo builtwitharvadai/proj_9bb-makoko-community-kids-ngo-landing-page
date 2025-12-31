@@ -1230,6 +1230,186 @@
       font-size: 1rem;
     }
   }
+
+  /* Volunteer section styles */
+  #volunteer {
+    position: relative;
+    overflow: hidden;
+  }
+
+  #volunteer::before {
+    content: '';
+    position: absolute;
+    top: -10%;
+    right: -10%;
+    width: 40%;
+    height: 40%;
+    background: radial-gradient(
+      circle,
+      rgba(2, 132, 199, 0.05) 0%,
+      transparent 70%
+    );
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  #volunteer::after {
+    content: '';
+    position: absolute;
+    bottom: -10%;
+    left: -10%;
+    width: 40%;
+    height: 40%;
+    background: radial-gradient(
+      circle,
+      rgba(192, 38, 211, 0.05) 0%,
+      transparent 70%
+    );
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  /* Volunteer role card styles */
+  .volunteer-role-card {
+    position: relative;
+    transition: all var(--transition-base) ease;
+  }
+
+  .volunteer-role-card:hover {
+    transform: translateY(-4px);
+    box-shadow: theme('boxShadow.medium');
+  }
+
+  .volunteer-role-card.featured-role {
+    border: 2px solid theme('colors.accent.200');
+  }
+
+  .volunteer-role-card .featured-badge {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Volunteer application form styles */
+  .volunteer-application-container {
+    position: relative;
+  }
+
+  .volunteer-application-container .form-section {
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid theme('colors.gray.200');
+  }
+
+  .volunteer-application-container .form-section:last-of-type {
+    border-bottom: none;
+  }
+
+  .volunteer-application-container .form-group {
+    position: relative;
+  }
+
+  .volunteer-application-container .form-group input,
+  .volunteer-application-container .form-group select,
+  .volunteer-application-container .form-group textarea {
+    transition: all var(--transition-base) ease;
+  }
+
+  .volunteer-application-container .form-group input:focus,
+  .volunteer-application-container .form-group select:focus,
+  .volunteer-application-container .form-group textarea:focus {
+    outline: none;
+    border-color: theme('colors.primary.500');
+    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
+  }
+
+  .volunteer-application-container .form-group input.error,
+  .volunteer-application-container .form-group select.error,
+  .volunteer-application-container .form-group textarea.error {
+    border-color: theme('colors.red.500');
+  }
+
+  .volunteer-application-container .form-group input.error:focus,
+  .volunteer-application-container .form-group select.error:focus,
+  .volunteer-application-container .form-group textarea.error:focus {
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+  }
+
+  /* Skills category styles */
+  .skills-category {
+    padding: 1rem;
+    background: theme('colors.gray.50');
+    border-radius: theme('borderRadius.xl');
+  }
+
+  /* Commitment option styles */
+  .commitment-option {
+    transition: all var(--transition-base) ease;
+  }
+
+  .commitment-option:has(input:checked) {
+    border-color: theme('colors.primary.600');
+    background: theme('colors.primary.50');
+    box-shadow: 0 4px 14px rgba(2, 132, 199, 0.2);
+  }
+
+  /* Filter dropdown styles */
+  .filter-dropdown {
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  .filter-dropdown::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .filter-dropdown::-webkit-scrollbar-track {
+    background: theme('colors.gray.100');
+    border-radius: 3px;
+  }
+
+  .filter-dropdown::-webkit-scrollbar-thumb {
+    background: theme('colors.gray.400');
+    border-radius: 3px;
+  }
+
+  .filter-dropdown::-webkit-scrollbar-thumb:hover {
+    background: theme('colors.gray.500');
+  }
+
+  /* Filter button styles */
+  .filter-btn {
+    position: relative;
+  }
+
+  .filter-btn[aria-expanded="true"] {
+    border-color: theme('colors.primary.500');
+    background: theme('colors.primary.50');
+  }
+
+  /* Apply role button styles */
+  .apply-role-btn {
+    transition: all var(--transition-base) ease;
+  }
+
+  .apply-role-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+  }
+
+  /* Volunteer testimonials styles */
+  #volunteer-testimonials {
+    position: relative;
+  }
+
+  #volunteer-testimonials .testimonial {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  #volunteer-testimonials .testimonial blockquote {
+    flex-grow: 1;
+  }
 }
 
 /* Custom Utility Classes */

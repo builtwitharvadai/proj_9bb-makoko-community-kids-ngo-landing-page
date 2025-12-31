@@ -11,6 +11,11 @@
 // Import global styles - Tailwind CSS base, components, and utilities
 import './style.css';
 
+// Import navigation components and utilities
+import header from './components/Header.js';
+import Footer from './components/Footer.js';
+import { initializeNavigation } from './utils/navigation.js';
+
 /**
  * Application initialization and configuration
  */
@@ -21,11 +26,14 @@ class Application {
   constructor() {
     this.initialized = false;
     this.startTime = performance.now();
+    this.navigationAPI = null;
+    this.footer = null;
     
     // Bind methods to maintain context
     this.init = this.init.bind(this);
     this.handleDOMContentLoaded = this.handleDOMContentLoaded.bind(this);
     this.handleError = this.handleError.bind(this);
+    this.initializeComponents = this.initializeComponents.bind(this);
   }
 
   /**
@@ -68,6 +76,9 @@ class Application {
         appRoot.setAttribute('data-app-initialized', 'true');
       }
 
+      // Initialize navigation components and functionality
+      this.initializeComponents();
+
       // Log successful initialization
       this.logInfo(`Application ready in ${loadTime.toFixed(2)}ms`);
 
@@ -86,6 +97,70 @@ class Application {
       }
     } catch (error) {
       this.logError('Error during DOM content loaded handler', error);
+    }
+  }
+
+  /**
+   * Initialize navigation components and functionality
+   * Sets up header, footer, and navigation utilities
+   */
+  initializeComponents() {
+    try {
+      // Header is already initialized via its own module
+      // Just verify it's ready
+      if (header && header.init) {
+        this.logInfo('Header component ready');
+      }
+
+      // Initialize footer component
+      const footerContainer = document.querySelector('[data-footer]');
+      if (footerContainer) {
+        this.footer = new Footer();
+        this.footer.init();
+        this.logInfo('Footer component initialized');
+      }
+
+      // Initialize navigation utilities
+      this.navigationAPI = initializeNavigation();
+      this.logInfo('Navigation utilities initialized');
+
+      // Set up event listeners for navigation
+      this.setupNavigationListeners();
+    } catch (error) {
+      this.logError('Failed to initialize components', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Set up event listeners for navigation functionality
+   */
+  setupNavigationListeners() {
+    try {
+      // Listen for navigation events
+      window.addEventListener('navigation:menu-toggle', (event) => {
+        this.logInfo('Mobile menu toggled', { isOpen: event.detail.isOpen });
+      });
+
+      window.addEventListener('navigation:initialized', () => {
+        this.logInfo('Navigation system ready');
+      });
+
+      // Handle smooth scrolling for all anchor links
+      document.addEventListener('click', (event) => {
+        const link = event.target.closest('a[href^="#"]');
+        if (link && this.navigationAPI) {
+          event.preventDefault();
+          const targetId = link.getAttribute('href').substring(1);
+          const targetElement = document.getElementById(targetId);
+          
+          if (targetElement) {
+            this.navigationAPI.smoothScrollTo(targetElement);
+          }
+        }
+      });
+    } catch (error) {
+      this.logError('Failed to setup navigation listeners', error);
     }
   }
 
@@ -190,6 +265,21 @@ class Application {
       window.removeEventListener('error', this.handleError);
       window.removeEventListener('unhandledrejection', this.handleUnhandledRejection.bind(this));
       document.removeEventListener('DOMContentLoaded', this.handleDOMContentLoaded);
+      
+      // Clean up navigation API
+      if (this.navigationAPI && this.navigationAPI.cleanup) {
+        this.navigationAPI.cleanup();
+      }
+
+      // Clean up footer
+      if (this.footer && this.footer.destroy) {
+        this.footer.destroy();
+      }
+
+      // Clean up header
+      if (header && header.destroy) {
+        header.destroy();
+      }
       
       this.initialized = false;
       this.logInfo('Application destroyed');

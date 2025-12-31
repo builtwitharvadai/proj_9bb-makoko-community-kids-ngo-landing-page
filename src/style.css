@@ -256,6 +256,41 @@
   .image-overlay:hover img {
     transform: scale(1.05);
   }
+  
+  /* Navigation link styles */
+  .nav-link {
+    position: relative;
+    display: inline-block;
+    text-decoration: none;
+    transition: color var(--transition-base) ease;
+  }
+  
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: currentColor;
+    transition: width var(--transition-base) ease;
+  }
+  
+  .nav-link:hover::after,
+  .nav-link[aria-current="page"]::after {
+    width: 100%;
+  }
+  
+  /* Mobile navigation link styles */
+  .mobile-nav-link {
+    display: block;
+    text-decoration: none;
+    transition: all var(--transition-fast) ease;
+  }
+  
+  .mobile-nav-link:active {
+    transform: scale(0.98);
+  }
 }
 
 /* Custom Utility Classes */
@@ -369,6 +404,32 @@
     transform: translateY(0);
   }
   50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    max-height: 500px;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 1;
+    max-height: 500px;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    max-height: 0;
     transform: translateY(-10px);
   }
 }

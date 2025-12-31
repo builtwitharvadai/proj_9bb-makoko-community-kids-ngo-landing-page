@@ -1,2 +1,13 @@
-# proj_9bb-makoko-community-kids-ngo-landing-page
-A professional landing page website for an NGO dedicated to supporting children in the Makoko community of Nigeria. The site will showcase the organization's mission, impact, and programs while providing visitors with clear pathways to learn more and get involved through donations or volunteering.
+makoko-community-kids-ngo/
+├── src/
+│   ├── main.js           # Application entry point
+│   └── style.css         # Global styles and Tailwind imports
+├── public/               # Static assets
+├── dist/                 # Production build output (generated)
+├── index.html            # HTML entry point
+├── package.json          # Project dependencies and scripts
+├── vite.config.js        # Vite build configuration
+├── tailwind.config.js    # Tailwind CSS configuration
+├── eslint.config.js      # ESLint configuration (flat config)
+├── prettier.config.js    # Prettier code formatting configuration
+└── README.md            # This file
